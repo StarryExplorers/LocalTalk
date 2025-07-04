@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Local Chat Vault</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #38bdf8;
+    }
+
+    .chat-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #1e293b;
+      padding: 1rem;
+      border-radius: 1rem;
+      height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      background: #334155;
+      padding: 0.8rem;
+      border-radius: 0.7rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .message .name {
+      font-weight: bold;
+      color: #facc15;
+    }
+
+    .message .text {
+      margin-top: 0.3rem;
+    }
+
+    .form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    input, textarea, button {
+      font-size: 1rem;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+      border: none;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .clear-btn {
+      background: #ef4444;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>💬 Local Chat Vault</h1>
+
+  <div class="chat-box" id="chatBox"></div>
+
+  <div class="form">
+    <input type="text" id="name" placeholder="Your name" />
+    <textarea id="message" rows="3" placeholder="Your message"></textarea>
+    <button onclick="sendMessage()">Send</button>
+    <button class="clear-btn" onclick="clearMessages()">Clear All</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+
+    function loadMessages() {
+      const messages = JSON.parse(localStorage.getItem('messages')) || [];
+      chatBox.innerHTML = '';
+      messages.forEach((msg) => {
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerHTML = `
+          <div class="name">${msg.name} <small style="float:right;">${msg.time}</small></div>
+          <div class="text">${msg.text}</div>
+        `;
+        chatBox.appendChild(div);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const name = document.getElementById('name').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!name || !message) return alert("Please enter both name and message!");
+
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newMessage = { name, text: message, time };
+      const messages = JSON.parse(localStorage.getItem('messages')) || [];
+      messages.push(newMessage);
+      localStorage.setItem('messages', JSON.stringify(messages));
+
+      document.getElementById('message').value = '';
+      loadMessages();
+    }
+
+    function clearMessages() {
+      if (confirm("Clear all messages?")) {
+        localStorage.removeItem('messages');
+        loadMessages();
+      }
+    }
+
+    loadMessages();
+  </script>
+</body>
+</html>
